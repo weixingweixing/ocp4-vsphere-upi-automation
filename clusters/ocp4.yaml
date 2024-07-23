@@ -1,0 +1,126 @@
+helper_vm: 10.2.10.111
+helper_vm_port: 8080
+helper_vm_protocol: http
+config:
+  provider: vsphere
+  base_domain: weix.com
+  cluster_name: "{{ cluster }}"
+  cluster_version: "latest-4.10" # Can also be in format latest-4.11
+  ignition_version: "3.2.0"
+  fips: false
+  #networkType: OVNKubernetes
+  pull_secret: "{{ lookup('file', '/root/pullsecret') }}"
+  master_schedulable: false
+  hybrid: false
+vcenter:
+  cluster: SA-Compute-01
+  ip: 10.10.77.10
+  datastore: vsanDatastore
+  iso_dir: ocp_install_isos
+  network: "tanzu-mgmt"
+  parent_folder: "k8s"
+  username: administrator@vsphere.local #[CHANGE ME]
+  password: $ecu1TG$ecu1TG #[CHANGE ME]
+  datacenter: 'SA-Datacenter'
+  hw_version: 15
+download:
+  govc: "https://github.com/vmware/govmomi/releases/download/v0.38.0"
+  clients_url: "https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/{{ config.cluster_version }}"
+nodes:
+  - { name: "bootstrap", type: "bootstrap", macaddr: "00:50:56:be:ce:8e", ipaddr: "10.2.10.70", cpu: 4, ram: 16384, size_gb: 120}
+  - { name: "master0", type: "master", macaddr: "00:50:56:be:1a:81", ipaddr: "10.2.10.71", cpu: 8, ram: 16384, size_gb: 120}
+  - { name: "master1", type: "master", macaddr: "00:50:56:be:1a:82", ipaddr: "10.2.10.72", cpu: 8, ram: 16384, size_gb: 120}
+  - { name: "master2", type: "master", macaddr: "00:50:56:be:1a:83", ipaddr: "10.2.10.73", cpu: 8, ram: 16384, size_gb: 120}
+  - { name: "worker0", type: "worker", macaddr: "00:50:56:be:1a:91", ipaddr: "10.2.10.81", cpu: 8, ram: 16384, size_gb: 120}
+  - { name: "worker1", type: "worker", macaddr: "00:50:56:be:1a:92", ipaddr: "10.2.10.82", cpu: 8, ram: 16384, size_gb: 120}
+  - { name: "worker2", type: "worker", macaddr: "00:50:56:be:1a:93", ipaddr: "10.2.10.83", cpu: 8, ram: 16384, size_gb: 120}
+vm_mods:
+  hotadd_cpu: true
+  hotremove_cpu: true
+  hotadd_memory: true
+  master_cores_per_socket: 2
+  worker_cores_per_socket: 2
+static_ip:
+  gateway: 10.2.10.1
+  netmask: 255.255.255.0
+  dns: 10.2.10.111
+  network_interface_name: ens192
+network_modifications:
+  enabled: true
+  clusterNetwork:
+  - cidr: 100.68.0.0/14
+    hostPrefix: 23
+  serviceNetwork:
+  - cidr: 100.66.0.0/15
+  machineNetwork:
+  - cidr: 10.2.10.0/24
+proxy:
+  enabled: false
+  # http_proxy: "http://internet.mydomain.com:8080"
+  # https_proxy: "http://internet.mydomain.com:8080"
+  # no_proxy: "'*.mydomain.com,mydomain.com,.mydomain.com,{{ helper_vm_ip }},localhost'"
+  # cert_content: |
+  #   -----BEGIN CERTIFICATE-----
+  #       <certficate content>
+  #   -----END CERTIFICATE-----
+registry:
+  enabled: false
+  product_repo: openshift-release-dev
+  product_release_name: ocp-release
+  username: admin
+  password: Harbor12345
+  email: weix@ecdatainfo.com
+  cert_content: |
+    -----BEGIN CERTIFICATE-----
+    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
+    -----END CERTIFICATE-----    
+  host: registry.labs.io
+  port: 443
+  repo: ocp/openshift4
+  disconnected: true
+ntp:
+  custom: false
+  # maxdistance: 16
+  # ntp_server_list:
+  #   - ntp1.mydomain.com
+  #   - ntp2.mydomain.com
+f5:
+  enabled: false
+  # api_vip: 1.1.1.1
+  # app_vip: 2.2.2.2
+  # provider:
+  #   server: f5_address.tld
+  #   server_port: 8443
+  #   user: f5_username
+  #   password: f5_password
+  #   validate_certs: no

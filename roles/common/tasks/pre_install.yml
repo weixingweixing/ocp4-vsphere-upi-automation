@@ -93,6 +93,7 @@
     force: true
     validate_certs: no
   register: oc_client_download
+  when: skip_download is not defined
 
 - name: Download the openshift-install binary
   get_url:
@@ -101,6 +102,7 @@
     force: true
     validate_certs: no
   register: openshift_install_download
+  when: skip_download is not definded
 
 - name: Unarchive oc client
   unarchive:
@@ -129,6 +131,7 @@
     url: "{{ download.govc }}/govc_{{ family }}_x86_64.tar.gz"
     dest: "{{ playbook_dir }}/downloads/govc.gz"
     validate_certs: no
+  when: skip_download is not defined
 
 - name: Unarchive govc
   unarchive:
