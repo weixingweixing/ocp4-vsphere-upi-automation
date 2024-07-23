@@ -102,7 +102,7 @@
     force: true
     validate_certs: no
   register: openshift_install_download
-  when: skip_download is not definded
+  when: skip_download is not defined
 
 - name: Unarchive oc client
   unarchive:
